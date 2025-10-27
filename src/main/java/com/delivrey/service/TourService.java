@@ -1,5 +1,12 @@
 package com.delivrey.service;
 
-public class TourService {
+import com.delivrey.entity.*;
+import java.util.List;
 
+public interface TourService {
+
+	
+	List<Delivery> getOptimizedTour(Long tourId, String algorithm);
+    double getTotalDistance(List<Delivery> deliveries);
+    
 }
