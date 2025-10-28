@@ -1,3 +1,4 @@
+package com.delivrey.controller;
 
 import com.delivrey.entity.Delivery;
 import com.delivrey.repository.DeliveryRepository;

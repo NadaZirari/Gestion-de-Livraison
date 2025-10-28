@@ -1,5 +1,4 @@
 package com.delivrey.controller;
-
 import com.delivrey.entity.Vehicle;
 import com.delivrey.repository.VehicleRepository;
 import org.springframework.web.bind.annotation.*;

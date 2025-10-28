@@ -2,9 +2,14 @@ package com.delivrey.service;
 
 import com.delivrey.entity.*;
 import com.delivrey.repository.*;
-import com.delivrey.service.optimizer.*;
+import com.delivrey.service.*;
+import com.delivrey.entity.Tour;
+import com.delivrey.entity.Delivery;
 import java.util.*;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class TourServiceImpl implements TourService {
 
     private final TourRepository tourRepo;

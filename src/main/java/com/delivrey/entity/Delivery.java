@@ -83,5 +83,13 @@ public class Delivery {
 		this.status = status;
 	}
 
+
+
+	public DeliveryStatus getStatus() {
+		return status;
+	}
+
+
+
     // Getters, Setters
 }
