@@ -1,11 +1,17 @@
 package com.delivrey.controller;
 
+import com.delivrey.dto.DeliveryDTO;
 import com.delivrey.entity.Delivery;
+import mapper.DeliveryMapper;
 import com.delivrey.repository.DeliveryRepository;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
-@RestController
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * Declare this controller as bean in XML and enable mvc:annotation-driven
+ */
 @RequestMapping("/api/deliveries")
 public class DeliveryController {
 
@@ -16,35 +22,49 @@ public class DeliveryController {
     }
 
     @GetMapping
-    public List<Delivery> getAll() {
-        return deliveryRepository.findAll();
+    @ResponseBody
+    public List<DeliveryDTO> getAll() {
+        return deliveryRepository.findAll().stream().map(DeliveryMapper::toDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public Delivery getById(@PathVariable Long id) {
-        return deliveryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Delivery not found"));
+    @ResponseBody
+    public DeliveryDTO getById(@PathVariable Long id) {
+        Delivery d = deliveryRepository.findById(id).orElse(null);
+        return DeliveryMapper.toDto(d);
     }
 
     @PostMapping
-    public Delivery create(@RequestBody Delivery delivery) {
-        return deliveryRepository.save(delivery);
+    @ResponseBody
+    public DeliveryDTO create(@RequestBody DeliveryDTO dto) {
+        Delivery entity = DeliveryMapper.toEntity(dto);
+        Delivery saved = deliveryRepository.save(entity);
+        return DeliveryMapper.toDto(saved);
     }
 
     @PutMapping("/{id}")
-    public Delivery update(@PathVariable Long id, @RequestBody Delivery delivery) {
-        Delivery existing = getById(id);
-        existing.setAddress(delivery.getAddress());
-        existing.setLatitude(delivery.getLatitude());
-        existing.setLongitude(delivery.getLongitude());
-        existing.setVolume(delivery.getVolume());
-        existing.setWeight(delivery.getWeight());
-        existing.setTimeWindow(delivery.getTimeWindow());
-        existing.setStatus(delivery.getStatus());
-        return deliveryRepository.save(existing);
+    @ResponseBody
+    public DeliveryDTO update(@PathVariable Long id, @RequestBody DeliveryDTO dto) {
+        Delivery existing = deliveryRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
+        // map fields
+        existing.setAddress(dto.getAddress());
+        existing.setLatitude(dto.getLatitude());
+        existing.setLongitude(dto.getLongitude());
+        existing.setWeight(dto.getWeight());
+        existing.setVolume(dto.getVolume());
+        existing.setTimeWindow(dto.getTimeWindow());
+        // status if present
+        if (dto.getStatus() != null) {
+            try {
+                existing.setStatus(com.delivrey.entity.DeliveryStatus.valueOf(dto.getStatus()));
+            } catch (IllegalArgumentException ex) { /* ignore or validate */ }
+        }
+        Delivery saved = deliveryRepository.save(existing);
+        return DeliveryMapper.toDto(saved);
     }
 
     @DeleteMapping("/{id}")
+    @ResponseBody
     public void delete(@PathVariable Long id) {
         deliveryRepository.deleteById(id);
     }
