@@ -7,7 +7,7 @@ public class Warehouse {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
     private String address;
     private double latitude;
     private double longitude;

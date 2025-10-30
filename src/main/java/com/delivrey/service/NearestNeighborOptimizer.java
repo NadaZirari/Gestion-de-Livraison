@@ -5,7 +5,6 @@ import java.util.*;
 
 import org.springframework.stereotype.Service;
 
-@Service("nearest")
 public class NearestNeighborOptimizer implements TourOptimizer {
 
     @Override

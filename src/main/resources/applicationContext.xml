@@ -1,17 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="
-        http://www.springframework.org/schema/beans 
-        http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+      xsi:schemaLocation="
+    http://www.springframework.org/schema/beans
+    classpath:xsd/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    classpath:xsd/spring-context.xsd
+    http://www.springframework.org/schema/data/jpa
+    classpath:xsd/spring-jpa.xsd
+    http://www.springframework.org/schema/tx
+    classpath:xsd/spring-tx.xsd"
+>
 
-    <bean id="nearestOptimizer" class="com.delivery.service.optimizer.NearestNeighborOptimizer"/>
-    <bean id="clarkeOptimizer" class="com.delivery.service.optimizer.ClarkeWrightOptimizer"/>
 
-    <bean id="tourService" class="com.delivery.service.TourServiceImpl">
-        <constructor-arg ref="tourRepository"/>
-        <constructor-arg ref="nearestOptimizer"/>
-        <constructor-arg ref="clarkeOptimizer"/>
+
+    <!-- 🗄️ DataSource -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="org.postgresql.Driver" />
+        <property name="url" value="jdbc:postgresql://localhost:5432/deliverydb" />
+        <property name="username" value="postgres" />
+        <property name="password" value="your_password" />
     </bean>
+
+    <!-- 🧠 EntityManagerFactory -->
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="packagesToScan" value="com.delivrey.entity" />
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+        </property>
+        <property name="jpaProperties">
+            <props>
+                <prop key="hibernate.hbm2ddl.auto">update</prop>
+                <prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>
+                <prop key="hibernate.show_sql">true</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!-- ⚙️ Transaction Manager -->
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory" />
+    </bean>
+    
+    
+    
+    <bean id="nearest" class="com.delivrey.service.NearestNeighborOptimizer" />
+
+    
+    <bean id="deliveryService" class="com.delivrey.service.DeliveryService">
+    <constructor-arg ref="deliveryRepository" />
+</bean>
+
+    
+    
+    <bean id="deliveryController" class="com.delivrey.controller.DeliveryController">
+    <constructor-arg ref="deliveryRepository" />
+</bean>
+    
+    
+
+    <!-- ✅ Activation des transactions -->
+    <tx:annotation-driven transaction-manager="transactionManager" />
+
+    <!-- 🧩 Activation de Spring Data JPA sans @Repository -->
+    <jpa:repositories base-package="com.delivrey.repository"
+                      entity-manager-factory-ref="entityManagerFactory"
+                      transaction-manager-ref="transactionManager" />
 
 </beans>
