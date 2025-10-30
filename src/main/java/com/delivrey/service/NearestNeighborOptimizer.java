@@ -1,9 +1,9 @@
 package com.delivrey.service;
 
 import com.delivrey.entity.Delivery;
-import java.util.*;
-
-import org.springframework.stereotype.Service;
+import com.delivrey.util.GeoUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NearestNeighborOptimizer implements TourOptimizer {
 
@@ -11,36 +11,28 @@ public class NearestNeighborOptimizer implements TourOptimizer {
     public List<Delivery> calculateOptimalTour(List<Delivery> deliveries) {
         List<Delivery> remaining = new ArrayList<>(deliveries);
         List<Delivery> ordered = new ArrayList<>();
-
         if (remaining.isEmpty()) return ordered;
 
+        // start from first as depot is handled externally (if needed)
         Delivery current = remaining.remove(0);
+        ordered.add(current);
 
         while (!remaining.isEmpty()) {
             Delivery next = null;
-            double minDistance = Double.MAX_VALUE;
-
+            double minDist = Double.MAX_VALUE;
             for (Delivery d : remaining) {
-                double dist = distance(current, d);
-                if (dist < minDistance) {
-                    minDistance = dist;
+                double dist = GeoUtils.haversineKm(current.getLatitude(), current.getLongitude(),
+                                                   d.getLatitude(), d.getLongitude());
+                if (dist < minDist) {
+                    minDist = dist;
                     next = d;
                 }
             }
-
             if (next == null) break;
             ordered.add(next);
             remaining.remove(next);
             current = next;
         }
-
-
         return ordered;
-    }
-
-    private double distance(Delivery a, Delivery b) {
-        double dx = a.getLatitude() - b.getLatitude();
-        double dy = a.getLongitude() - b.getLongitude();
-        return Math.sqrt(dx*dx + dy*dy);
     }
 }
