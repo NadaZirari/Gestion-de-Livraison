@@ -1,13 +1,17 @@
 package com.delivrey;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-@SpringBootTest
-class DeliveryApplicationTests {
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-	@Test
-	void contextLoads() {
-	}
+public class DeliveryApplicationTests {
 
+    @Test
+    public void contextLoads() {
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        assertNotNull(context.getBean("vehicleService")); // vérifie que le bean existe
+        assertNotNull(context.getBean("vehicleController")); // vérifie que le controller est bien créé
+    }
 }

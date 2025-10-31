@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
        xsi:schemaLocation="
        http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-       http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd
-       http://www.springframework.org/schema/data/jpa https://www.springframework.org/schema/data/jpa/spring-jpa.xsd
        http://www.springframework.org/schema/tx https://www.springframework.org/schema/tx/spring-tx.xsd
        http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
@@ -17,15 +13,12 @@
     <!-- ================================ -->
     <mvc:annotation-driven/>
 
-    <!-- 🔍 Scan des controllers pour que SpringDoc détecte les endpoints -->
-    <context:component-scan base-package="com.delivrey.controller"/>
-
     <!-- ================================ -->
     <!-- 🗄️ H2 Database -->
     <!-- ================================ -->
     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="org.h2.Driver"/>
-        <property name="url" value="jdbc:h2:mem:deliverydb;DB_CLOSE_DELAY=-1"/>
+        <property name="url" value="jdbc:h2:mem:deliverydb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"/>
         <property name="username" value="sa"/>
         <property name="password" value=""/>
     </bean>
@@ -57,11 +50,23 @@
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
     <!-- ================================ -->
-    <!-- 🧩 Spring Data JPA Repositories -->
+    <!-- 🧩 Repositories Manuels -->
     <!-- ================================ -->
-    <jpa:repositories base-package="com.delivrey.repository"
-                      entity-manager-factory-ref="entityManagerFactory"
-                      transaction-manager-ref="transactionManager"/>
+    <bean id="vehicleRepository" class="com.delivrey.repository.VehicleRepositoryImpl">
+        <constructor-arg ref="entityManagerFactory"/>
+    </bean>
+
+    <bean id="deliveryRepository" class="com.delivrey.repository.DeliveryRepositoryImpl">
+        <constructor-arg ref="entityManagerFactory"/>
+    </bean>
+
+    <bean id="tourRepository" class="com.delivrey.repository.TourRepositoryImpl">
+        <constructor-arg ref="entityManagerFactory"/>
+    </bean>
+
+    <bean id="warehouseRepository" class="com.delivrey.repository.WarehouseRepositoryImpl">
+        <constructor-arg ref="entityManagerFactory"/>
+    </bean>
 
     <!-- ================================ -->
     <!-- 🧮 Optimizers -->
@@ -70,51 +75,24 @@
     <bean id="clarke" class="com.delivrey.service.ClarkeWrightOptimizer"/>
 
     <!-- ================================ -->
-    <!-- 💾 Repositories (SimpleJpaRepository) -->
+    <!-- 💾 Services -->
     <!-- ================================ -->
-    <bean id="deliveryRepository"
-          class="org.springframework.data.jpa.repository.support.SimpleJpaRepository">
-        <constructor-arg name="domainClass" value="com.delivrey.entity.Delivery"/>
-        <constructor-arg name="em" ref="entityManagerFactory"/>
+    <bean id="vehicleService" class="com.delivrey.service.VehicleServiceImpl">
+        <constructor-arg ref="vehicleRepository"/>
     </bean>
 
-    <bean id="tourRepository"
-          class="org.springframework.data.jpa.repository.support.SimpleJpaRepository">
-        <constructor-arg name="domainClass" value="com.delivrey.entity.Tour"/>
-        <constructor-arg name="em" ref="entityManagerFactory"/>
-    </bean>
-
-    <bean id="vehicleRepository"
-          class="org.springframework.data.jpa.repository.support.SimpleJpaRepository">
-        <constructor-arg name="domainClass" value="com.delivrey.entity.Vehicle"/>
-        <constructor-arg name="em" ref="entityManagerFactory"/>
-    </bean>
-
-    <bean id="warehouseRepository"
-          class="org.springframework.data.jpa.repository.support.SimpleJpaRepository">
-        <constructor-arg name="domainClass" value="com.delivrey.entity.Warehouse"/>
-        <constructor-arg name="em" ref="entityManagerFactory"/>
-    </bean>
-
-    <!-- ================================ -->
-    <!-- 🧠 Services -->
-    <!-- ================================ -->
-    <bean id="deliveryService" class="com.delivrey.service.impl.DeliveryServiceImpl">
+    <bean id="deliveryService" class="com.delivrey.service.DeliveryServiceImpl">
         <constructor-arg ref="deliveryRepository"/>
     </bean>
 
-    <bean id="tourService" class="com.delivrey.service.impl.TourServiceImpl">
+    <bean id="tourService" class="com.delivrey.service.TourServiceImpl">
         <constructor-arg ref="deliveryRepository"/>
         <constructor-arg ref="tourRepository"/>
         <constructor-arg ref="nearest"/>
         <constructor-arg ref="clarke"/>
     </bean>
 
-    <bean id="vehicleService" class="com.delivrey.service.impl.VehicleServiceImpl">
-        <constructor-arg ref="vehicleRepository"/>
-    </bean>
-
-    <bean id="warehouseService" class="com.delivrey.service.impl.WarehouseServiceImpl">
+    <bean id="warehouseService" class="com.delivrey.service.WarehouseServiceImpl">
         <constructor-arg ref="warehouseRepository"/>
     </bean>
 
@@ -125,10 +103,6 @@
         <constructor-arg ref="vehicleService"/>
     </bean>
 
-    <bean id="warehouseController" class="com.delivrey.controller.WarehouseController">
-        <constructor-arg ref="warehouseService"/>
-    </bean>
-
     <bean id="deliveryController" class="com.delivrey.controller.DeliveryController">
         <constructor-arg ref="deliveryService"/>
     </bean>
@@ -137,13 +111,8 @@
         <constructor-arg ref="tourService"/>
     </bean>
 
-    <!-- ================================ -->
-    <!-- 🖼 Swagger / OpenAPI -->
-    <!-- ================================ -->
-    <bean id="openApiCustomiser" class="org.springdoc.core.customizers.OpenApiCustomiser">
-        <constructor-arg>
-            <util:constant static-field="io.swagger.v3.oas.models.info.Info"/>
-        </constructor-arg>
+    <bean id="warehouseController" class="com.delivrey.controller.WarehouseController">
+        <constructor-arg ref="warehouseService"/>
     </bean>
 
 </beans>
