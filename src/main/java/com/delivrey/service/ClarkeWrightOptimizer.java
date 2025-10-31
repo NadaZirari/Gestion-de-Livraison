@@ -2,11 +2,12 @@ package com.delivrey.service;
 
 import com.delivrey.entity.Delivery;
 import com.delivrey.util.GeoUtils;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
-
+/**
+ * ClarkeWrightOptimizer implements TourOptimizer
+ */
 public class ClarkeWrightOptimizer implements TourOptimizer {
 
     @Override

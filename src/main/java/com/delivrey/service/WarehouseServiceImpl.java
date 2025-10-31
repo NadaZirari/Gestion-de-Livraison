@@ -3,9 +3,11 @@ package com.delivrey.service;
 import com.delivrey.entity.Warehouse;
 import com.delivrey.repository.WarehouseRepository;
 import com.delivrey.service.WarehouseService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class WarehouseServiceImpl implements WarehouseService {
 
     private final WarehouseRepository repository;

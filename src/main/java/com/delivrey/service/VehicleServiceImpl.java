@@ -4,10 +4,12 @@ import com.delivrey.entity.Vehicle;
 import com.delivrey.repository.VehicleRepository;
 import com.delivrey.service.VehicleService;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 @Transactional
 public class VehicleServiceImpl implements VehicleService {
 
