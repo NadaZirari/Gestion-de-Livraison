@@ -3,22 +3,39 @@ package mapper;
 import com.delivrey.dto.TourDTO;
 import com.delivrey.dto.DeliveryDTO;
 import com.delivrey.entity.Tour;
+import org.hibernate.Hibernate;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class TourMapper {
 
     public static TourDTO toDto(Tour tour) {
         if (tour == null) return null;
+        
         TourDTO dto = new TourDTO();
         dto.setId(tour.getId());
         dto.setDate(tour.getTourDate());
         dto.setVehicleId(tour.getVehicle() != null ? tour.getVehicle().getId() : null);
         dto.setWarehouseId(tour.getWarehouse() != null ? tour.getWarehouse().getId() : null);
-        dto.setStatus(tour.getAlgorithmUsed()); // <- ici, status = algorithmUsed
-        dto.setDeliveries(tour.getDeliveries() != null
-                ? tour.getDeliveries().stream().map(DeliveryMapper::toDto).collect(Collectors.toList())
-                : null);
+        dto.setStatus(tour.getAlgorithmUsed());
+        
+        // Safely handle lazy-loaded collections
+        try {
+            if (Hibernate.isInitialized(tour.getDeliveries())) {
+                dto.setDeliveries(tour.getDeliveries() != null 
+                    ? tour.getDeliveries().stream()
+                        .map(DeliveryMapper::toDto)
+                        .collect(Collectors.toList())
+                    : Collections.emptyList());
+            } else {
+                dto.setDeliveries(Collections.emptyList());
+            }
+        } catch (Exception e) {
+            dto.setDeliveries(Collections.emptyList());
+        }
+        
         return dto;
     }
 

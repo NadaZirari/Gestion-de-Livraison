@@ -1,10 +1,12 @@
 package com.delivrey.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Tour {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,7 +15,9 @@ public class Tour {
     private LocalDate tourDate;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Vehicle vehicle;
 
     public Long getId() {
@@ -64,10 +68,18 @@ public class Tour {
 		this.algorithmUsed = algorithmUsed;
 	}
 
-	@ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "warehouse_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Warehouse warehouse;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "tour_delivery",
+        joinColumns = @JoinColumn(name = "tour_id"),
+        inverseJoinColumns = @JoinColumn(name = "delivery_id")
+    )
+    @JsonIgnoreProperties("tours")
     private List<Delivery> deliveries;
 
     private String algorithmUsed;

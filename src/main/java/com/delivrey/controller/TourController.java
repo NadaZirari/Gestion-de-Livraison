@@ -8,11 +8,13 @@ import com.delivrey.service.TourService;
 import mapper.DeliveryMapper;
 import mapper.TourMapper;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/tours")
+@Transactional(readOnly = true)
 public class TourController {
 
     private final TourService tourService;
@@ -55,8 +57,9 @@ public class TourController {
     }
 
     // --- Créer un tour ---
-    @PostMapping
+    @PostMapping("/create")
     @ResponseBody
+    @Transactional
     public TourDTO createTour(@RequestBody TourDTO dto) {
         Tour tour = TourMapper.toEntity(dto);
         Tour saved = tourService.saveTour(tour);
@@ -66,6 +69,7 @@ public class TourController {
     // --- Mettre à jour un tour ---
     @PutMapping("/{tourId}")
     @ResponseBody
+    @Transactional
     public TourDTO updateTour(@PathVariable Long tourId, @RequestBody TourDTO dto) {
         Tour existing = tourService.getTourById(tourId);
         TourMapper.updateEntity(existing, dto);
@@ -76,6 +80,7 @@ public class TourController {
     // --- Supprimer un tour ---
     @DeleteMapping("/{tourId}")
     @ResponseBody
+    @Transactional
     public void deleteTour(@PathVariable Long tourId) {
         tourService.deleteTour(tourId);
     }

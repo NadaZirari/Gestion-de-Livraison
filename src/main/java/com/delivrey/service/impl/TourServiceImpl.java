@@ -66,13 +66,13 @@ public class TourServiceImpl implements TourService {
 
     @Override
     public Tour getTourById(Long id) {
-        return tourRepository.findById(id)
+        return tourRepository.findByIdWithDeliveries(id)
             .orElseThrow(() -> new RuntimeException("Tour not found with id: " + id));
     }
 
     @Override
     public List<Tour> getAllTours() {
-        return tourRepository.findAll();
+        return tourRepository.findAllWithDeliveries();
     }
 
     @Override
