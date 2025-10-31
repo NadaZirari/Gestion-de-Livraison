@@ -65,4 +65,24 @@ public class TourServiceImpl implements TourService {
         }
         return total;
     }
+    @Override
+    public Tour getTourById(Long id) {
+        return tourRepository.findById(id).orElseThrow(() -> new RuntimeException("Tour not found"));
+    }
+
+    @Override
+    public List<Tour> getAllTours() {
+        return tourRepository.findAll();
+    }
+
+    @Override
+    public Tour saveTour(Tour tour) {
+        return tourRepository.save(tour);
+    }
+
+    @Override
+    public void deleteTour(Long id) {
+        tourRepository.deleteById(id);
+    }
+
 }

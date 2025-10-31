@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 /**
  * Declare this controller as bean in XML and enable mvc:annotation-driven
  */
+@RestController
 @RequestMapping("/api/deliveries")
 public class DeliveryController {
 
