@@ -153,6 +153,16 @@ Calculates “savings” by combining routes and minimizing the total distance t
 
 Iteratively merges routes until no further savings are possible.
 
+## Seed data (executed on startup)
+
+File: src/main/resources/data.sql
+
+Creates:
+
+1 Warehouse (id=1)
+3 Vehicles (id=1..3): BIKE, VAN, TRUCK
+Deliveries (id=100..119)
+
 
 ## 🧪 Tests
 
