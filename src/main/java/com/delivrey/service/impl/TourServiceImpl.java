@@ -2,6 +2,7 @@ package com.delivrey.service.impl;
 
 import com.delivrey.entity.Delivery;
 import com.delivrey.entity.Tour;
+import java.util.ArrayList;
 import com.delivrey.repository.DeliveryRepository;
 import com.delivrey.repository.TourRepository;
 import com.delivrey.service.TourOptimizer;
@@ -27,18 +28,27 @@ public class TourServiceImpl implements TourService {
 
     @Override
     public List<Delivery> getOptimizedTour(Long tourId, String algorithm) {
-        Tour tour = tourRepository.findById(tourId).orElseThrow(
-            () -> new RuntimeException("Tour not found with id: " + tourId)
-        );
+        Tour tour = tourRepository.findByIdWithDeliveriesAndWarehouse(tourId)
+            .orElseThrow(() -> new RuntimeException("Tour not found with id: " + tourId));
 
-        List<Delivery> deliveries = tour.getDeliveries();
+        List<Delivery> deliveries = new ArrayList<>(tour.getDeliveries());
         
-        // Choisir l'algorithme d'optimisation
+        // Add warehouse as the starting point if it exists
+        if (tour.getWarehouse() != null) {
+            Delivery warehouseDelivery = new Delivery();
+            warehouseDelivery.setId(-1L); // Temporary ID for warehouse
+            warehouseDelivery.setLatitude(tour.getWarehouse().getLatitude());
+            warehouseDelivery.setLongitude(tour.getWarehouse().getLongitude());
+            warehouseDelivery.setAddress("Warehouse");
+            deliveries.add(0, warehouseDelivery);
+        }
+        
+        // Choose optimization algorithm
         TourOptimizer optimizer = "CLARKE_WRIGHT".equalsIgnoreCase(algorithm) 
             ? clarkeWrightOptimizer 
             : nearestNeighborOptimizer;
 
-        // Optimiser la tournée
+        // Optimize the tour
         return optimizer.calculateOptimalTour(deliveries);
     }
 

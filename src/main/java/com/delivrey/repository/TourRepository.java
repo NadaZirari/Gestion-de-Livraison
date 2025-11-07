@@ -16,6 +16,9 @@ public interface TourRepository extends JpaRepository<Tour, Long> {
     @Query("SELECT DISTINCT t FROM Tour t LEFT JOIN FETCH t.deliveries")
     List<Tour> findAllWithDeliveries();
     
+    @Query("SELECT DISTINCT t FROM Tour t LEFT JOIN FETCH t.deliveries LEFT JOIN FETCH t.warehouse WHERE t.id = :id")
+    Optional<Tour> findByIdWithDeliveriesAndWarehouse(@Param("id") Long id);
+    
     @Query("SELECT t FROM Tour t LEFT JOIN FETCH t.deliveries WHERE t.id = :id")
     Optional<Tour> findByIdWithDeliveries(@Param("id") Long id);
     
